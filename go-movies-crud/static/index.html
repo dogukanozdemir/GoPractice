@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <title> Static Website </title>
+        <script type="text/javascript" src="/static/js/movies.js"></script>
+    </head>
+    <div>
+
+        <h1>Get all movies</h1>
+        <input type="submit" id="getMovieButton" onclick="getMovies()" value="press me"/>
+        <hr/>
+        <h1>Get movie by Id</h1>
+        <label>Movie ID: </label><input id="getMovieByIdText" type="text" value=""/><br/>
+        <input type="submit" onclick="getMovieById(document.getElementById('getMovieByIdText').value)"value="Submit"/>
+        <hr/>
+        <h1>Create Movie</h1>
+        <label>ISBN: </label><input id="createMovieIsbn" type="text" value=""/><br/>
+        <label>Title: </label><input id="createMovieTitle" type="text" value=""/><br/>
+        <label>Director: </label><br/>
+        <label>Name: </label><input id="createMovieName" type="text" value=""/><br/>
+        <label>Surname: </label><input id="createMovieSurname" type="text" value=""/><br/>
+        <input type="submit" onclick="createMovie()"value="Submit"/>
+        <hr/>
+        <h1>UPDATE Movie</h1>
+        <label>ID: </label><input id="UpdateMovieId" type="text" value=""/><br/>
+        <label>New ISBN: </label><input id="UpdateMovieIsbn" type="text" value=""/><br/>
+        <label>New Title: </label><input id="UpdateMovieTitle" type="text" value=""/><br/>
+        <label>New Director: </label><br/>
+        <label>New Name: </label><input id="UpdateDirectorName" type="text" value=""/><br/>
+        <label>New Surname: </label><input id="UpdateDirectorSurname" type="text" value=""/><br/>
+        <input type="submit"  onclick="updateMovie(document.getElementById('UpdateMovieId').value)"value="Submit"/>
+        <hr/>
+        <h1>Delete movie by Id</h1>
+        <label>Movie ID: </label><input id="deleteMovieByIdText" type="text" value=""/><br/>
+        <input type="submit"  onclick="deleteMovie(document.getElementById('deleteMovieByIdText').value)" value="Submit"/>
+        <hr/>
+
+    </div>
+    </body>
+</html>
