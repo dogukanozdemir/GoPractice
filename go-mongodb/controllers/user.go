@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -20,30 +19,21 @@ var userCollection *mongo.Collection = database.OpenCollection(database.Client, 
 func GetUser(c *gin.Context) {
 	id := c.Param("id")
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	log.Printf("%v", id)
 
 	var user models.User
-	err := userCollection.FindOne(ctx, bson.M{"user_id": id}).Decode(&user)
-	defer cancel()
+	objId, _ := primitive.ObjectIDFromHex(id)
+	err := userCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	defer cancel()
 
 	c.JSON(http.StatusOK, user)
 }
 
-func CheckDB(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	databases, _ := database.Client.ListDatabaseNames(ctx, bson.M{})
-	log.Printf("%v", databases)
-	collections, _ := database.Client.Database("go-mongodb").ListCollectionNames(ctx, bson.M{})
-	log.Printf("%v", collections)
-	defer cancel()
-
-}
-
 func CreateUser(c *gin.Context) {
+
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	var user models.User
 
@@ -52,7 +42,6 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 	user.Id = primitive.NewObjectID()
-	user.User_id = user.Id.Hex()
 
 	_, insertErr := userCollection.InsertOne(ctx, user)
 	if insertErr != nil {
@@ -92,9 +81,15 @@ func DeleteUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
 	id := c.Param("id")
-	_, err := userCollection.DeleteOne(ctx, bson.M{"user_id": id})
+	objId, _ := primitive.ObjectIDFromHex(id)
+	deleteResult, err := userCollection.DeleteOne(ctx, bson.M{"_id": objId})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if deleteResult.DeletedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 	defer cancel()
@@ -116,7 +111,7 @@ func UpdateUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer cancel()
 
+	defer cancel()
 	c.JSON(http.StatusOK, user)
 }

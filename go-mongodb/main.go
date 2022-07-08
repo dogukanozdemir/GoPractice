@@ -5,15 +5,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
-
 func main() {
 
 	r := gin.New()
 	r.Use(gin.Logger())
 
-	r.GET("/check", controllers.CheckDB)
- 	r.GET("/user/:id", controllers.GetUser)
+	r.GET("/user/:id", controllers.GetUser)
 	r.POST("/user", controllers.CreateUser)
 	r.DELETE("/user/:id", controllers.DeleteUser)
 	r.GET("/users", controllers.GetAllUsers)
