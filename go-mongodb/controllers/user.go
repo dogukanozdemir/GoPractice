@@ -15,11 +15,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-
-
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user")
 
-func GetUser(c * gin.Context) {
+func GetUser(c *gin.Context) {
 	id := c.Param("id")
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	log.Printf("%v", id)
@@ -28,7 +26,7 @@ func GetUser(c * gin.Context) {
 	err := userCollection.FindOne(ctx, bson.M{"user_id": id}).Decode(&user)
 	defer cancel()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError,gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -42,7 +40,7 @@ func CheckDB(c *gin.Context) {
 	collections, _ := database.Client.Database("go-mongodb").ListCollectionNames(ctx, bson.M{})
 	log.Printf("%v", collections)
 	defer cancel()
-	
+
 }
 
 func CreateUser(c *gin.Context) {
@@ -58,7 +56,7 @@ func CreateUser(c *gin.Context) {
 
 	_, insertErr := userCollection.InsertOne(ctx, user)
 	if insertErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error" : insertErr.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": insertErr.Error()})
 		return
 	}
 	defer cancel()
@@ -75,7 +73,6 @@ func GetAllUsers(c *gin.Context) {
 		return
 	}
 
-
 	var users []models.User
 	for cursor.Next(ctx) {
 		var user models.User
@@ -91,7 +88,7 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-func DeleteUser(c * gin.Context) {
+func DeleteUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
 	id := c.Param("id")
@@ -106,7 +103,7 @@ func DeleteUser(c * gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
 
-func UpdateUser(c * gin.Context){
+func UpdateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	var user models.User
 
@@ -114,7 +111,7 @@ func UpdateUser(c * gin.Context){
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	_, err := userCollection.UpdateOne(ctx, bson.M{"user_id": user.User_id}, bson.M{"$set": user})
+	_, err := userCollection.UpdateOne(ctx, bson.M{"_id": user.Id}, bson.M{"$set": user})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
