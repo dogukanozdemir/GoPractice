@@ -3,9 +3,10 @@ filters = document.querySelectorAll(".filters span"),
 clearAll = document.querySelector(".clear-btn"),
 taskBox = document.querySelector(".task-box");
 
-let editId,
-isEditTask = false,
-todos = JSON.parse(localStorage.getItem("todo-list"));
+let editId,isEditTask = false
+
+fetchTodos().then(data => showTodo("all",data));
+
 
 filters.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -15,9 +16,16 @@ filters.forEach(btn => {
     });
 });
 
-function showTodo(filter) {
+async function fetchTodos() {
+    const response = await fetch('http://localhost:8080/todos');
+    const todos = await response.json();
+    return todos;
+}
+
+function showTodo(filter,todos) {
     let liTag = "";
     if(todos) {
+        console.log(todos)
         todos.forEach((todo, id) => {
             let completed = todo.status == "completed" ? "checked" : "";
             if(filter == todo.status || filter == "all") {
@@ -42,7 +50,6 @@ function showTodo(filter) {
     !checkTask.length ? clearAll.classList.remove("active") : clearAll.classList.add("active");
     taskBox.offsetHeight >= 300 ? taskBox.classList.add("overflow") : taskBox.classList.remove("overflow");
 }
-showTodo("all");
 
 function showMenu(selectedTask) {
     let menuDiv = selectedTask.parentElement.lastElementChild;
