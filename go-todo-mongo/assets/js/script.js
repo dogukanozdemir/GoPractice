@@ -11,13 +11,15 @@ filters.forEach(btn => {
     btn.addEventListener("click", () => {
         document.querySelector("span.active").classList.remove("active");
         btn.classList.add("active");
-        showTodo(btn.id);
+        showTodo(btn.id,"",false);
     });
 });
 
-function showTodo(filter,todos = "") {
+function showTodo(filter,todos = "",firstTime) {
     let todoArr = todos == "" ? allTodos : todos;
-    allTodos = todos == "" ? "" : todos;
+    if(firstTime) {
+        allTodos = todoArr;
+    }
     let liTag = "";
     if(todoArr) {
         todoArr.forEach((todo) => {
