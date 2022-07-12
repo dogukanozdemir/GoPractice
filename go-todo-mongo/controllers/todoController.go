@@ -32,6 +32,20 @@ func GetTodo(c *gin.Context) {
 	c.JSON(http.StatusOK, todo)
 }
 
+func ClearAll(c * gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100 * time.Second)
+	_, err := todoCollection.DeleteMany(ctx, bson.D{})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H {"error" : err.Error()})
+		return
+	}
+
+	defer cancel()
+	c.JSON(http.StatusOK, gin.H{"success" : "All todos deleted."})
+
+}
+
 func GetTodos(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
@@ -76,6 +90,28 @@ func DeleteTodo(c *gin.Context) {
 	msg := fmt.Sprintf("todo with id : %v is was deleted successfully.", id)
 	c.JSON(http.StatusOK, gin.H{"success": msg})
 
+}
+
+func UpdateTodo(c * gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100 * time.Second)
+
+	var newTodo models.Todo
+	id := c.Param("id")
+	objId, _ := primitive.ObjectIDFromHex(id)
+	if err := c.BindJSON(&newTodo) ; err == nil{
+		c.JSON(http.StatusBadRequest,gin.H{"error" : err.Error()})
+		return
+	}
+
+	_,err := todoCollection.UpdateOne(ctx, bson.M{"_id": objId}, bson.M{"$set": newTodo})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error" : err.Error()})
+		return
+	}
+
+	defer cancel()
+
+	c.JSON(http.StatusOK, newTodo)
 }
 
 func AddTodo(c *gin.Context) {

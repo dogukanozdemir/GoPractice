@@ -6,8 +6,7 @@ taskBox = document.querySelector(".task-box");
 let editId,isEditTask = false
 
 fetchTodos().then(data => showTodo("all",data));
-
-
+allTodos = "";
 filters.forEach(btn => {
     btn.addEventListener("click", () => {
         document.querySelector("span.active").classList.remove("active");
@@ -16,29 +15,24 @@ filters.forEach(btn => {
     });
 });
 
-async function fetchTodos() {
-    const response = await fetch('http://localhost:8080/todos');
-    const todos = await response.json();
-    return todos;
-}
-
-function showTodo(filter,todos) {
+function showTodo(filter,todos = "") {
+    let todoArr = todos == "" ? allTodos : todos;
+    allTodos = todos == "" ? "" : todos;
     let liTag = "";
-    if(todos) {
-        console.log(todos)
-        todos.forEach((todo, id) => {
+    if(todoArr) {
+        todoArr.forEach((todo) => {
             let completed = todo.status == "completed" ? "checked" : "";
             if(filter == todo.status || filter == "all") {
                 liTag += `<li class="task">
-                            <label for="${id}">
-                                <input onclick="updateStatus(this)" type="checkbox" id="${id}" ${completed}>
+                            <label for="${todo["ID"]}">
+                                <input onclick="updateStatus(this)" type="checkbox" id="${todo["ID"]}" ${completed}>
                                 <p class="${completed}">${todo.name}</p>
                             </label>
                             <div class="settings">
                                 <i onclick="showMenu(this)" class="uil uil-ellipsis-h"></i>
                                 <ul class="task-menu">
-                                    <li onclick='editTask(${id}, "${todo.name}")'><i class="uil uil-pen"></i>Edit</li>
-                                    <li onclick='deleteTask(${id}, "${filter}")'><i class="uil uil-trash"></i>Delete</li>
+                                    <li onclick='editTask(${todo["ID"]}, "${todo.name}")'><i class="uil uil-pen"></i>Edit</li>
+                                    <li onclick='deleteTask(${todo["ID"]}, "${filter}")'><i class="uil uil-trash"></i>Delete</li>
                                 </ul>
                             </div>
                         </li>`;
@@ -63,14 +57,19 @@ function showMenu(selectedTask) {
 
 function updateStatus(selectedTask) {
     let taskName = selectedTask.parentElement.lastElementChild;
+    let newStatus = "";
     if(selectedTask.checked) {
         taskName.classList.add("checked");
-        todos[selectedTask.id].status = "completed";
+        newStatus = "completed";
+        allTodos[selectedTask.id].status = "completed";
+
     } else {
         taskName.classList.remove("checked");
-        todos[selectedTask.id].status = "pending";
+        newStatus = "pending";
+        allTodos[selectedTask.id].status = "pending";
     }
-    localStorage.setItem("todo-list", JSON.stringify(todos))
+    updateTodo(selectedTask.id,taskName,newStatus).then(data => console.log(data));
+
 }
 
 function editTask(taskId, textName) {
@@ -79,35 +78,94 @@ function editTask(taskId, textName) {
     taskInput.value = textName;
     taskInput.focus();
     taskInput.classList.add("active");
+    updateTodo(taskId,textName).then(data => showTodo("all",data));
 }
 
 function deleteTask(deleteId, filter) {
     isEditTask = false;
-    todos.splice(deleteId, 1);
-    localStorage.setItem("todo-list", JSON.stringify(todos));
-    showTodo(filter);
+    allTodos.splice(deleteId, 1);
+    deleteTodos(deleteId).then(data => showTodo(filter,data)); // fix
 }
 
 clearAll.addEventListener("click", () => {
     isEditTask = false;
-    todos.splice(0, todos.length);
-    localStorage.setItem("todo-list", JSON.stringify(todos));
-    showTodo()
+    ClearAllTodos().then(data => console.log(data));
+    showTodo() // fix
 });
 
 taskInput.addEventListener("keyup", e => {
     let userTask = taskInput.value.trim();
     if(e.key == "Enter" && userTask) {
         if(!isEditTask) {
-            todos = !todos ? [] : todos;
             let taskInfo = {name: userTask, status: "pending"};
-            todos.push(taskInfo);
+            addTodo(taskInfo).then(data => console.log(data));
         } else {
             isEditTask = false;
-            todos[editId].name = userTask;
+            todos[editId].name = userTask; // fix
         }
         taskInput.value = "";
-        localStorage.setItem("todo-list", JSON.stringify(todos));
-        showTodo(document.querySelector("span.active").id);
+        showTodo(document.querySelector("span.active").id); // fix
     }
 });
+
+
+async function ClearAllTodos() {
+
+    const response = await fetch('http://localhost:8080/todos', {
+        method: 'DELETE',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+    });
+    const todos = await response.json();
+    return todos;
+}
+
+async function updateTodo(id,name,status) {
+    const response = await fetch('http://localhost:8080/todo/' + id , {
+        method: 'PUT',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+        body: JSON.stringify({
+            'name' : name,
+            'status' : status
+        }
+        )
+    });
+    const todos = await response.json();
+    return todos;
+}
+
+async function addTodo(todo) { 
+    const response = await fetch('http://localhost:8080/todo', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+        body: JSON.stringify({
+            'name' : todo["name"],
+            'status' : todo["status"]
+        }
+        )
+    });
+   const todos = await response.json();
+   return todos;
+}
+
+async function fetchTodos() {
+    const response = await fetch('http://localhost:8080/todos');
+    const todos = await response.json();
+    return todos;
+}
+
+async function deleteTodos(id) {
+    const response = await fetch('http://localhost:8080/todo/' + id, {
+        method: 'DELETE'
+    });
+    const todos = await response.json();
+    return todos;
+}
