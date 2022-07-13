@@ -4,16 +4,15 @@ clearAll = document.querySelector(".clear-btn"),
 taskBox = document.querySelector(".task-box");
 
 let editId,isEditTask,editStatus = false
-console.log("asdasd")
 fetchTodos().then(data => showTodo("all",data,true));
 allTodos = "";
-// filters.forEach(btn => {
-//     btn.addEventListener("click", () => {
-//         document.querySelector("span.active").classList.remove("active");
-//         btn.classList.add("active");
-//         showTodo(btn.id,"",false);
-//     });
-// });
+filters.forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelector("span.active").classList.remove("active");
+        btn.classList.add("active");
+        showTodo(btn.id,"",false);
+    });
+});
 
 function showTodo(filter,todos = "",changeAllTodos) {
     if(changeAllTodos) {
@@ -33,7 +32,7 @@ function showTodo(filter,todos = "",changeAllTodos) {
                                 <i onclick="showMenu(this)" class="uil uil-ellipsis-h"></i>
                                 <ul class="task-menu">
                                     <li onclick='editTask("${todo["ID"]}","${todo["name"]}","${todo["status"]}")'><i class="uil uil-pen"></i>Edit</li>
-                                    <li onclick='deleteTask(${todo["ID"]}, "${filter}")'><i class="uil uil-trash"></i>Delete</li>
+                                    <li onclick='deleteTask("${todo["ID"]}", "${filter}")'><i class="uil uil-trash"></i>Delete</li>
                                 </ul>
                             </div>
                         </li>`;
@@ -62,14 +61,14 @@ function updateStatus(selectedTask) {
     if(selectedTask.checked) {
         taskName.classList.add("checked");
         newStatus = "completed";
-        allTodos[selectedTask.id].status = "completed";
+        findAndEditTodo(selectedTask.id,taskName.innerText,newStatus);
 
     } else {
         taskName.classList.remove("checked");
         newStatus = "pending";
-        allTodos[selectedTask.id].status = "pending";
+        findAndEditTodo(selectedTask.id,taskName.innerText,newStatus);
     }
-    updateTodo(selectedTask.id,taskName,newStatus).then(data => console.log(data));
+    updateTodo(selectedTask.id,taskName.innerText,newStatus).then(data => console.log(data));
 
 }
 
@@ -80,13 +79,15 @@ function editTask(taskId, textName,taskStatus) {
     taskInput.value = textName;
     taskInput.focus();
     taskInput.classList.add("active");
-    console.log(taskId + " " + textName + " " + taskStatus);
 }
 
 function deleteTask(deleteId, filter) {
     isEditTask = false;
-    allTodos.splice(deleteId, 1);
-    deleteTodos(deleteId).then(data => showTodo(filter,"",false));
+    findAndDeleteTodo(deleteId);
+    deleteTodos(deleteId).then(data => {
+        showTodo(filter,"",false)
+        console.log(data);
+    });
 }
 
 clearAll.addEventListener("click", () => {
@@ -102,26 +103,31 @@ taskInput.addEventListener("keyup", e => {
         if(!isEditTask) {
             allTodos = !allTodos ? [] : allTodos;
             let taskInfo = {name: userTask, status: "pending"};
-            addTodo(taskInfo).then(data => console.log(data));
-            allTodos.push(taskInfo);
+            addTodo(taskInfo).then(data => {
+                taskInfo["ID"] = data["insertedId"];
+                allTodos.push(taskInfo);
+                showTodo(document.querySelector("span.active").id,"",false);
+                console.log(data);
+
+            });
         } else {
             isEditTask = false;
             updateTodo(editId,userTask,editStatus).then(data => console.log(data));
             findAndEditTodo(editId,userTask,editStatus);
+            showTodo(document.querySelector("span.active").id,"",false);
         }
         taskInput.value = "";
-        showTodo(document.querySelector("span.active").id,"",false);
     }
 });
 
 
-function findAndDeleteTodo(id){
+function findAndDeleteTodo(id) {
     allTodos.forEach((todo,index) => {
         if(todo.ID == id) {
             allTodos.splice(index,1);
         }
-    }
-    );
+    });
+    
 }
 function findAndEditTodo(id,name,status) {
     allTodos.forEach((todo) => {

@@ -87,7 +87,7 @@ func DeleteTodo(c *gin.Context) {
 	}
 	defer cancel()
 
-	msg := fmt.Sprintf("todo with id : %v is was deleted successfully.", id)
+	msg := fmt.Sprintf("todo with id : %v was deleted successfully.", id)
 	c.JSON(http.StatusOK, gin.H{"success": msg})
 
 }
@@ -130,7 +130,5 @@ func AddTodo(c *gin.Context) {
 		return
 	}
 	defer cancel()
-
-	msg := fmt.Sprintf("A new todo '%v' created!", todo.Name)
-	c.JSON(http.StatusOK, gin.H{"success": msg})
+	c.JSON(http.StatusOK, gin.H{"insertedId": todo.ID})
 }
