@@ -19,3 +19,15 @@ DELETE http://localhost:8080/todo/id
 ###
 
 get http://localhost:8080/todo/62cc45342efde81934a8df6b
+
+
+###
+
+PUT http://localhost:8080/todo/62cecb84f33a6eb68a0518d5
+
+Content-Type: application/json
+
+{
+    "name" : "atask",
+    "status" : "checked"
+}

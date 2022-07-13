@@ -16,15 +16,15 @@ func main() {
 	router := gin.Default()
 	router.LoadHTMLGlob("assets/*.html")
 	router.Static("/assets", "./assets")
-	
+
 	router.GET("/", index)
 	router.GET("/todos", controller.GetTodos)
 	router.GET("/todo/:id", controller.GetTodo)
 
 	router.POST("/todo", controller.AddTodo)
 	router.DELETE("/todo/:id", controller.DeleteTodo)
-	router.DELETE("/todos",controller.ClearAll)
-	router.PUT("/todo/:id",controller.UpdateTodo)
+	router.DELETE("/todos", controller.ClearAll)
+	router.PUT("/todo", controller.UpdateTodo)
 	router.Run(":8080")
 
 }

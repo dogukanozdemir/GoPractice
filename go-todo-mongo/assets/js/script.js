@@ -3,26 +3,25 @@ filters = document.querySelectorAll(".filters span"),
 clearAll = document.querySelector(".clear-btn"),
 taskBox = document.querySelector(".task-box");
 
-let editId,isEditTask = false
-
-fetchTodos().then(data => showTodo("all",data));
+let editId,isEditTask,editStatus = false
+console.log("asdasd")
+fetchTodos().then(data => showTodo("all",data,true));
 allTodos = "";
-filters.forEach(btn => {
-    btn.addEventListener("click", () => {
-        document.querySelector("span.active").classList.remove("active");
-        btn.classList.add("active");
-        showTodo(btn.id,"",false);
-    });
-});
+// filters.forEach(btn => {
+//     btn.addEventListener("click", () => {
+//         document.querySelector("span.active").classList.remove("active");
+//         btn.classList.add("active");
+//         showTodo(btn.id,"",false);
+//     });
+// });
 
-function showTodo(filter,todos = "",firstTime) {
-    let todoArr = todos == "" ? allTodos : todos;
-    if(firstTime) {
-        allTodos = todoArr;
+function showTodo(filter,todos = "",changeAllTodos) {
+    if(changeAllTodos) {
+        allTodos = todos;
     }
     let liTag = "";
-    if(todoArr) {
-        todoArr.forEach((todo) => {
+    if(allTodos) {
+        allTodos.forEach((todo) => {
             let completed = todo.status == "completed" ? "checked" : "";
             if(filter == todo.status || filter == "all") {
                 liTag += `<li class="task">
@@ -33,7 +32,7 @@ function showTodo(filter,todos = "",firstTime) {
                             <div class="settings">
                                 <i onclick="showMenu(this)" class="uil uil-ellipsis-h"></i>
                                 <ul class="task-menu">
-                                    <li onclick='editTask(${todo["ID"]}, "${todo.name}")'><i class="uil uil-pen"></i>Edit</li>
+                                    <li onclick='editTask("${todo["ID"]}","${todo["name"]}","${todo["status"]}")'><i class="uil uil-pen"></i>Edit</li>
                                     <li onclick='deleteTask(${todo["ID"]}, "${filter}")'><i class="uil uil-trash"></i>Delete</li>
                                 </ul>
                             </div>
@@ -74,41 +73,64 @@ function updateStatus(selectedTask) {
 
 }
 
-function editTask(taskId, textName) {
+function editTask(taskId, textName,taskStatus) {
     editId = taskId;
+    editStatus = taskStatus;
     isEditTask = true;
     taskInput.value = textName;
     taskInput.focus();
     taskInput.classList.add("active");
-    updateTodo(taskId,textName).then(data => showTodo("all",data));
+    console.log(taskId + " " + textName + " " + taskStatus);
 }
 
 function deleteTask(deleteId, filter) {
     isEditTask = false;
     allTodos.splice(deleteId, 1);
-    deleteTodos(deleteId).then(data => showTodo(filter,data)); // fix
+    deleteTodos(deleteId).then(data => showTodo(filter,"",false));
 }
 
 clearAll.addEventListener("click", () => {
     isEditTask = false;
+    allTodos.splice(0, allTodos.length);
     ClearAllTodos().then(data => console.log(data));
-    showTodo() // fix
+    showTodo("all","",false);
 });
 
 taskInput.addEventListener("keyup", e => {
     let userTask = taskInput.value.trim();
     if(e.key == "Enter" && userTask) {
         if(!isEditTask) {
+            allTodos = !allTodos ? [] : allTodos;
             let taskInfo = {name: userTask, status: "pending"};
             addTodo(taskInfo).then(data => console.log(data));
+            allTodos.push(taskInfo);
         } else {
             isEditTask = false;
-            todos[editId].name = userTask; // fix
+            updateTodo(editId,userTask,editStatus).then(data => console.log(data));
+            findAndEditTodo(editId,userTask,editStatus);
         }
         taskInput.value = "";
-        showTodo(document.querySelector("span.active").id); // fix
+        showTodo(document.querySelector("span.active").id,"",false);
     }
 });
+
+
+function findAndDeleteTodo(id){
+    allTodos.forEach((todo,index) => {
+        if(todo.ID == id) {
+            allTodos.splice(index,1);
+        }
+    }
+    );
+}
+function findAndEditTodo(id,name,status) {
+    allTodos.forEach((todo) => {
+        if(todo.ID == id) {
+            todo.name = name;
+            todo.status = status;
+        }
+    });
+}
 
 
 async function ClearAllTodos() {
@@ -120,18 +142,20 @@ async function ClearAllTodos() {
             'Content-Type': 'application/json'
           }
     });
+
     const todos = await response.json();
     return todos;
 }
 
 async function updateTodo(id,name,status) {
-    const response = await fetch('http://localhost:8080/todo/' + id , {
+    const response = await fetch('http://localhost:8080/todo/' , {
         method: 'PUT',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
         body: JSON.stringify({
+            'ID': id,
             'name' : name,
             'status' : status
         }
