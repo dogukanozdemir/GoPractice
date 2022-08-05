@@ -31,3 +31,14 @@ Content-Type: application/json
     "name" : "atask",
     "status" : "checked"
 }
+
+###
+
+Post http://localhost:8080/signup
+Content-Type: application/json
+
+{
+    "username" : "admin",
+    "email" : "email",
+    "password" : "password"
+}

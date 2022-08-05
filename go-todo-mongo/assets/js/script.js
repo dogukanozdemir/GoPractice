@@ -2,8 +2,8 @@ const taskInput = document.querySelector(".task-input input"),
 filters = document.querySelectorAll(".filters span"),
 clearAll = document.querySelector(".clear-btn"),
 taskBox = document.querySelector(".task-box");
-
 let editId,isEditTask,editStatus = false
+var userid = changeUsername();
 fetchTodos().then(data => showTodo("all",data,true));
 allTodos = "";
 filters.forEach(btn => {
@@ -13,6 +13,31 @@ filters.forEach(btn => {
         showTodo(btn.id,"",false);
     });
 });
+
+function changeUsername(){
+    let userid = getCookie("userID");
+    let username = getCookie("username");
+    document.getElementById("username").innerText = username;
+    return userid;
+
+}
+
+function getCookie(name) {
+    // Split cookie string and get all individual name=value pairs in an array
+    var cookieArr = document.cookie.split(";");
+    // Loop through the array elements
+    for(var i = 0; i < cookieArr.length; i++) {
+        var cookiePair = cookieArr[i].split("=");
+        /* Removing whitespace at the beginning of the cookie name
+        and compare it with the given string */
+        if(name == cookiePair[0].trim()) {
+            // Decode the cookie value and return
+            return decodeURIComponent(cookiePair[1]);
+        }
+    } 
+    // Return null if not found
+    return null;
+}
 
 function showTodo(filter,todos = "",changeAllTodos) {
     if(changeAllTodos) {
@@ -29,7 +54,7 @@ function showTodo(filter,todos = "",changeAllTodos) {
                                 <p class="${completed}">${todo.name}</p>
                             </label>
                             <div class="settings">
-                                <i onclick="showMenu(this)" class="uil uil-ellipsis-h"></i>
+                                <i id="dots"onclick="showMenu(this)" class="uil uil-ellipsis-h"></i>
                                 <ul class="task-menu">
                                     <li onclick='editTask("${todo["ID"]}","${todo["name"]}","${todo["status"]}")'><i class="uil uil-pen"></i>Edit</li>
                                     <li onclick='deleteTask("${todo["ID"]}", "${filter}")'><i class="uil uil-trash"></i>Delete</li>
@@ -141,7 +166,7 @@ function findAndEditTodo(id,name,status) {
 
 async function ClearAllTodos() {
 
-    const response = await fetch('http://localhost:8080/todos', {
+    const response = await fetch('/todos', {
         method: 'DELETE',
         headers: {
             'Accept': 'application/json',
@@ -154,7 +179,7 @@ async function ClearAllTodos() {
 }
 
 async function updateTodo(id,name,status) {
-    const response = await fetch('http://localhost:8080/todo/' , {
+    const response = await fetch('/todo' , {
         method: 'PUT',
         headers: {
             'Accept': 'application/json',
@@ -172,7 +197,7 @@ async function updateTodo(id,name,status) {
 }
 
 async function addTodo(todo) { 
-    const response = await fetch('http://localhost:8080/todo', {
+    const response = await fetch('/todo/' + userid, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -189,13 +214,13 @@ async function addTodo(todo) {
 }
 
 async function fetchTodos() {
-    const response = await fetch('http://localhost:8080/todos');
+    const response = await fetch('/todos/' + userid, );
     const todos = await response.json();
     return todos;
 }
 
 async function deleteTodos(id) {
-    const response = await fetch('http://localhost:8080/todo/' + id, {
+    const response = await fetch('/todo/' + id, {
         method: 'DELETE'
     });
     const todos = await response.json();

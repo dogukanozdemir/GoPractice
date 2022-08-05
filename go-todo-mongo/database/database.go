@@ -19,7 +19,6 @@ func CreateMongoClient() *mongo.Client {
 	if err != nil {
 		log.Fatal("Error loading environment file!")
 	}
-
 	MongoDbURI := os.Getenv("MONGODB_URL")
 	client, err := mongo.NewClient(options.Client().ApplyURI(MongoDbURI))
 	if err != nil {

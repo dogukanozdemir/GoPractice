@@ -48,8 +48,8 @@ func ClearAll(c *gin.Context) {
 
 func GetTodos(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-
-	findResult, err := todoCollection.Find(ctx, bson.D{})
+	userid := c.Param("userid")
+	findResult, err := todoCollection.Find(ctx, bson.M{"userid": userid})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"FindError": err.Error()})
 		return
@@ -123,6 +123,7 @@ func AddTodo(c *gin.Context) {
 	}
 
 	todo.ID = primitive.NewObjectID()
+	todo.UserID = c.Param("userid")
 
 	_, err := todoCollection.InsertOne(ctx, todo)
 	if err != nil {

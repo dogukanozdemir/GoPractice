@@ -6,11 +6,14 @@
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
 }
+p {
+  background: fff;
+}
 body{
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: linear-gradient(135deg, #4AB1FF, #2D5CFE);
+  background: #5b9fbe;
 }
 ::selection{
   color: #fff;
@@ -20,9 +23,12 @@ body{
   max-width: 405px;
   padding: 28px 0 30px;
   margin: 137px auto;
-  background: #fff;
+  background: #1B262C;
   border-radius: 7px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.wrapper span {
+  color:#fff
 }
 .task-input{
   height: 52px;
@@ -70,7 +76,7 @@ body{
   margin-left: 0;
 }
 .filters span.active{
-  color: #3C87FF;
+  color: #fff;
 }
 .controls .clear-btn{
   border: none;
@@ -84,7 +90,7 @@ body{
   letter-spacing: 0.3px;
   pointer-events: none;
   transition: transform 0.25s ease;
-  background: linear-gradient(135deg, #1798fb 0%, #2D5CFE 100%);
+  background: #6a8c91;
 }
 .clear-btn.active{
   opacity: 0.9;
@@ -139,11 +145,20 @@ body{
   margin-left: 12px;
   word-wrap: break-word;
 }
+
 .task label p.checked{
   text-decoration: line-through;
+  color:#fff
+}
+.task label p{
+  color: #fff;
 }
 .task-box .settings{
   position: relative;
+}
+
+#dots{
+  color: #fff
 }
 .settings :where(i, li){
   cursor: pointer;
@@ -152,7 +167,7 @@ body{
   z-index: 10;
   right: -5px;
   bottom: -65px;
-  padding: 5px 0;
+  padding: 10px 0;
   background: #fff;
   position: absolute;
   border-radius: 4px;
@@ -189,6 +204,7 @@ body{
 .settings li i{
   padding-right: 8px;
 }
+
 
 @media (max-width: 400px) {
   body{

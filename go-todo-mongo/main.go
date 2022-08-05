@@ -9,22 +9,30 @@ import (
 )
 
 func index(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", nil)
+	c.HTML(http.StatusOK, "login.html", nil)
 }
 
 func main() {
+
+
 	router := gin.Default()
 	router.LoadHTMLGlob("assets/*.html")
 	router.Static("/assets", "./assets")
 
+	// todo
 	router.GET("/", index)
-	router.GET("/todos", controller.GetTodos)
+	router.GET("/todos/:userid", controller.GetTodos)
 	router.GET("/todo/:id", controller.GetTodo)
-
-	router.POST("/todo", controller.AddTodo)
+	router.POST("/todo/:userid", controller.AddTodo)
 	router.DELETE("/todo/:id", controller.DeleteTodo)
 	router.DELETE("/todos", controller.ClearAll)
 	router.PUT("/todo", controller.UpdateTodo)
+
+	// user
+	router.POST("/signup", controller.SignUp)
+	router.POST("/login", controller.Login)
+	router.GET("/todo", controller.Todo)
+
 	router.Run(":8080")
 
 }

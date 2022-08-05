@@ -1,13 +1,13 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
+	"github.com/dogukanozdemir/go-postgresql/models"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -17,17 +17,17 @@ func main() {
 	}
 
 	postgres_uri := os.Getenv("POSTGRES_URI")
-	db, err := sql.Open("postgres", postgres_uri)
+	// host := os.Getenv("DB_HOST")
+	// name := os.Getenv("DB_NAME")
+	// user := os.Getenv("DB_USER")
+	// password := os.Getenv("DB_PASS")
+	// port := os.Getenv("DB_PORT")
+	// ssl := os.Getenv("DB_SSL")
+	db, err := gorm.Open(postgres.Open(postgres_uri), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("Successfully connected!")
-	defer db.Close()
+	db.AutoMigrate(&models.Book{})
 
 }
