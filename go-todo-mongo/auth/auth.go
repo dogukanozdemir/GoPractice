@@ -18,7 +18,7 @@ var SECRET_KEY string = os.Getenv("SECRET_KEY")
 func GenerateJWT(userid string) (string ,error, time.Time) {
 		// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
-	expirationTime := time.Now().Add(30 * time.Second)
+	expirationTime := time.Now().Add(300 * time.Second)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &Claims{
 		Username: userid,
@@ -65,7 +65,7 @@ func RefreshToken(c * gin.Context) (bool,error,time.Time){
 		}
 		return false,err,time.Time{}
 	}
-	if !tkn.Valid || time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 10*time.Second {
+	if !tkn.Valid || time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Second {
 		return true,nil,time.Unix(claims.ExpiresAt, 0)
 	}
 	return false,nil,time.Unix(claims.ExpiresAt, 0)

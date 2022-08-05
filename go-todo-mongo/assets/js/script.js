@@ -166,7 +166,7 @@ function findAndEditTodo(id,name,status) {
 
 async function ClearAllTodos() {
 
-    const response = await fetch('/todos', {
+    const response = await fetch('/todos/' + userid, {
         method: 'DELETE',
         headers: {
             'Accept': 'application/json',
@@ -179,7 +179,7 @@ async function ClearAllTodos() {
 }
 
 async function updateTodo(id,name,status) {
-    const response = await fetch('/todo' , {
+    const response = await fetch('/todo', {
         method: 'PUT',
         headers: {
             'Accept': 'application/json',
@@ -188,6 +188,7 @@ async function updateTodo(id,name,status) {
         body: JSON.stringify({
             'ID': id,
             'name' : name,
+            'user_id' : userid,
             'status' : status
         }
         )
@@ -220,7 +221,7 @@ async function fetchTodos() {
 }
 
 async function deleteTodos(id) {
-    const response = await fetch('/todo/' + id, {
+    const response = await fetch('/todo/' + userid+ '/' + id, {
         method: 'DELETE'
     });
     const todos = await response.json();

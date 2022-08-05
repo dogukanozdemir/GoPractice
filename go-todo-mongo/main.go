@@ -24,8 +24,8 @@ func main() {
 	router.GET("/todos/:userid", controller.GetTodos)
 	router.GET("/todo/:id", controller.GetTodo)
 	router.POST("/todo/:userid", controller.AddTodo)
-	router.DELETE("/todo/:id", controller.DeleteTodo)
-	router.DELETE("/todos", controller.ClearAll)
+	router.DELETE("/todo/:userid/:id", controller.DeleteTodo)
+	router.DELETE("/todos/:userid", controller.ClearAll)
 	router.PUT("/todo", controller.UpdateTodo)
 
 	// user
