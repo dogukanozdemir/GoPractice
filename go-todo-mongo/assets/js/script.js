@@ -129,11 +129,12 @@ taskInput.addEventListener("keyup", e => {
             allTodos = !allTodos ? [] : allTodos;
             let taskInfo = {name: userTask, status: "pending"};
             addTodo(taskInfo).then(data => {
-                taskInfo["ID"] = data["insertedId"];
-                allTodos.push(taskInfo);
-                showTodo(document.querySelector("span.active").id,"",false);
-                console.log(data);
-
+                if(!data["error"]) {
+                    taskInfo["ID"] = data["insertedId"];
+                    allTodos.push(taskInfo);
+                    showTodo(document.querySelector("span.active").id,"",false);
+                    console.log(data);
+                }
             });
         } else {
             isEditTask = false;
@@ -173,8 +174,11 @@ async function ClearAllTodos() {
             'Content-Type': 'application/json'
           }
     });
-
     const todos = await response.json();
+    if(response.status != 200) {
+        var str = JSON.stringify(todos);
+        document.write(str)
+    } 
     return todos;
 }
 
@@ -194,6 +198,10 @@ async function updateTodo(id,name,status) {
         )
     });
     const todos = await response.json();
+    if(response.status != 200) {
+        var str = JSON.stringify(todos);
+        document.write(str)
+    } 
     return todos;
 }
 
@@ -210,13 +218,21 @@ async function addTodo(todo) {
         }
         )
     });
-   const todos = await response.json();
-   return todos;
+    const todos = await response.json();
+    if(response.status != 200) {
+        var str = JSON.stringify(todos);
+        document.write(str)
+    } 
+    return todos;
 }
 
 async function fetchTodos() {
     const response = await fetch('/todos/' + userid, );
     const todos = await response.json();
+    if(response.status != 200) {
+        var str = JSON.stringify(todos);
+        document.write(str)
+    } 
     return todos;
 }
 
@@ -225,5 +241,9 @@ async function deleteTodos(id) {
         method: 'DELETE'
     });
     const todos = await response.json();
+    if(response.status != 200) {
+        var str = JSON.stringify(todos);
+        document.write(str)
+    } 
     return todos;
 }

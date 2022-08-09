@@ -8,7 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/dogukanozdemir/go-todo-mongo/auth"
 	"github.com/dogukanozdemir/go-todo-mongo/database"
 	"github.com/dogukanozdemir/go-todo-mongo/models"
@@ -170,33 +169,10 @@ func Login(c * gin.Context){
 }
 
 func Todo(c * gin.Context) {
-
-	cookie, err := c.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "session expired, please login again"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while getting cookie"})
-		return
+	session := auth.ValidateSession(c)
+	if session {
+		c.HTML(http.StatusOK,"todo.html", nil)
 	}
-	token, err := auth.ValidateJWT(cookie)
-
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			fmt.Fprintf(c.Writer, "Unauthorized, signature invalid")
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized, signature invalid"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while validating token"})
-	}
-
-	if !token.Valid {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized, invalid token"})
-		return
-	}
-
-	c.HTML(http.StatusOK,"todo.html", nil)
 }
 
 func HashPassword(password string) string {

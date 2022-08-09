@@ -15,10 +15,38 @@ type Claims struct {
 }
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
+
+func ValidateSession(c * gin.Context) (bool){
+	cookie, err := c.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "session expired, please login again"})
+			return false
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while getting cookie"})
+		return false
+	}
+
+	token, err := ValidateJWT(cookie)
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized, signature invalid"})
+			return false
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while validating token"})
+	}
+
+	if !token.Valid {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized, invalid token"})
+		return false
+	}
+	return true
+}
+
 func GenerateJWT(userid string) (string ,error, time.Time) {
-		// Declare the expiration time of the token
+	// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
-	expirationTime := time.Now().Add(300 * time.Second)
+	expirationTime := time.Now().Add(10 * time.Second)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &Claims{
 		Username: userid,

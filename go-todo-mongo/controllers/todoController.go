@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/dogukanozdemir/go-todo-mongo/auth"
 	"github.com/dogukanozdemir/go-todo-mongo/database"
 	"github.com/dogukanozdemir/go-todo-mongo/models"
 	"github.com/gin-gonic/gin"
@@ -33,6 +34,11 @@ func GetTodo(c *gin.Context) {
 }
 
 func ClearAll(c *gin.Context) {
+	session := auth.ValidateSession(c)
+	if !session{
+		return
+	} 
+	
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	userid := c.Param("userid")
 	_, err := todoCollection.DeleteMany(ctx, bson.M{"userid": userid})
@@ -48,6 +54,10 @@ func ClearAll(c *gin.Context) {
 }
 
 func GetTodos(c *gin.Context) {
+	session := auth.ValidateSession(c)
+	if !session{
+		return
+	} 
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	userid := c.Param("userid")
 	findResult, err := todoCollection.Find(ctx, bson.M{"userid": userid})
@@ -72,6 +82,10 @@ func GetTodos(c *gin.Context) {
 }
 
 func DeleteTodo(c *gin.Context) {
+	session := auth.ValidateSession(c)
+	if !session{
+		return
+	} 
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
 	id := c.Param("id")
@@ -95,6 +109,10 @@ func DeleteTodo(c *gin.Context) {
 }
 
 func UpdateTodo(c *gin.Context) {
+	session := auth.ValidateSession(c)
+	if !session{
+		return
+	} 
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	var newTodo models.Todo
 	if err := c.BindJSON(&newTodo); err != nil {
@@ -115,6 +133,10 @@ func UpdateTodo(c *gin.Context) {
 }
 
 func AddTodo(c *gin.Context) {
+	session := auth.ValidateSession(c)
+	if !session{
+		return
+	} 
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
 	var todo models.Todo
